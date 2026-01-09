@@ -117,6 +117,17 @@ h1, h3 { color: #dc2626; }
 <input class="dirSanNome5" placeholder="Nome 5">
 <input class="dirSanID5" placeholder="ID Discord 5">
 
+<hr>
+
+<!-- NUOVA SEZIONE: Vice Direzione Sanitaria -->
+<label class="label"><b>Vice Direzione Sanitaria</b></label>
+<input class="viceDirSanNome1" placeholder="Nome 1">
+<input class="viceDirSanID1" placeholder="ID Discord 1">
+<input class="viceDirSanNome2" placeholder="Nome 2">
+<input class="viceDirSanID2" placeholder="ID Discord 2">
+<input class="viceDirSanNome3" placeholder="Nome 3">
+<input class="viceDirSanID3" placeholder="ID Discord 3">
+
 <button onclick="saveDirezione()">💾 Salva Direzione</button>
 </div>
 
@@ -368,13 +379,14 @@ function getDirezioneTesto() {
     }
   }
 
+  // Direzione Sanitaria
+  let haDirSan = false;
   testo += "**Direzione Sanitaria:**\n";
-  let haAlmenoUno = false;
   for (let i = 1; i <= 5; i++) {
     const nome = document.querySelector(`.dirSanNome${i}`)?.value.trim() || '';
     const id = document.querySelector(`.dirSanID${i}`)?.value.trim() || '';
     if (nome || id) {
-      haAlmenoUno = true;
+      haDirSan = true;
       if (id && /^\d{17,19}$/.test(id)) {
         testo += `- <@${id}> — ${nome || 'Nome non inserito'}\n`;
       } else if (nome) {
@@ -382,8 +394,27 @@ function getDirezioneTesto() {
       }
     }
   }
-  if (!haAlmenoUno) {
+  if (!haDirSan) {
     testo = testo.replace("\n**Direzione Sanitaria:**\n", "");
+  }
+
+  // NUOVA: Vice Direzione Sanitaria
+  let haViceDirSan = false;
+  testo += "**Vice Direzione Sanitaria:**\n";
+  for (let i = 1; i <= 3; i++) {
+    const nome = document.querySelector(`.viceDirSanNome${i}`)?.value.trim() || '';
+    const id = document.querySelector(`.viceDirSanID${i}`)?.value.trim() || '';
+    if (nome || id) {
+      haViceDirSan = true;
+      if (id && /^\d{17,19}$/.test(id)) {
+        testo += `- <@${id}> — ${nome || 'Nome non inserito'}\n`;
+      } else if (nome) {
+        testo += `- ${nome}\n`;
+      }
+    }
+  }
+  if (!haViceDirSan) {
+    testo = testo.replace("\n**Vice Direzione Sanitaria:**\n", "");
   }
 
   return testo;
@@ -401,12 +432,19 @@ function saveDirezione() {
     dirAmmID: document.querySelector('.dirAmmID').value,
     viceDirAmmNome: document.querySelector('.viceDirAmmNome').value,
     viceDirAmmID: document.querySelector('.viceDirAmmID').value,
-    dirSan: []
+    dirSan: [],
+    viceDirSan: []  // nuovo array per Vice Direzione Sanitaria
   };
   for (let i = 1; i <= 5; i++) {
     dati.dirSan.push({
       nome: document.querySelector(`.dirSanNome${i}`)?.value || '',
       id: document.querySelector(`.dirSanID${i}`)?.value || ''
+    });
+  }
+  for (let i = 1; i <= 3; i++) {
+    dati.viceDirSan.push({
+      nome: document.querySelector(`.viceDirSanNome${i}`)?.value || '',
+      id: document.querySelector(`.viceDirSanID${i}`)?.value || ''
     });
   }
   localStorage.setItem(DIR_KEY, JSON.stringify(dati));
@@ -428,10 +466,19 @@ function loadDirezione() {
       document.querySelector('.dirAmmID').value = dati.dirAmmID || '';
       document.querySelector('.viceDirAmmNome').value = dati.viceDirAmmNome || '';
       document.querySelector('.viceDirAmmID').value = dati.viceDirAmmID || '';
+
       dati.dirSan.forEach((s, i) => {
         if (document.querySelector(`.dirSanNome${i+1}`)) document.querySelector(`.dirSanNome${i+1}`).value = s.nome;
         if (document.querySelector(`.dirSanID${i+1}`)) document.querySelector(`.dirSanID${i+1}`).value = s.id;
       });
+
+      // Caricamento Vice Direzione Sanitaria
+      if (dati.viceDirSan) {
+        dati.viceDirSan.forEach((s, i) => {
+          if (document.querySelector(`.viceDirSanNome${i+1}`)) document.querySelector(`.viceDirSanNome${i+1}`).value = s.nome;
+          if (document.querySelector(`.viceDirSanID${i+1}`)) document.querySelector(`.viceDirSanID${i+1}`).value = s.id;
+        });
+      }
     }
   } catch(e) {}
 }
@@ -487,7 +534,7 @@ function generaMessaggio() {
   let persone = [];
   let oreComplessive = 0;
   let bonusErogato = 0;
-  let extraSpecialiTot = 0; // Solo dipendente settimana + 5k manuali
+  let extraSpecialiTot = 0;
 
   const bonusDipValore = getBonusDipendenteSettimana();
 
@@ -502,12 +549,10 @@ function generaMessaggio() {
 
     let extrasSpeciali = 0;
 
-    // Bonus dipendente della settimana
     if (vincitoriSettimana.includes(nome)) {
       extrasSpeciali += bonusDipValore;
     }
 
-    // Bonus extra 5k manuale
     let checkbox = r.querySelector('.bonus5k');
     if (checkbox && checkbox.checked) {
       extrasSpeciali += 5000;
