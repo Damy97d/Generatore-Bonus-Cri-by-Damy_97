@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Generatore Bonus Settimanali Discord – v64 (Gradi Perfetti)</title>
+<style>
+body { font-family: Arial, sans-serif; background:#ffffff; color:#000000; padding:20px; }
+.box { background:#f8f8f8; padding:15px; border-radius:10px; margin-bottom:20px; border: 1px solid #dc2626; }
+input, button, textarea { padding:8px; margin:5px 0; width:100%; border-radius:6px; border:1px solid #dc2626; box-sizing:border-box; }
+button { background:#dc2626; color:white; cursor:pointer; }
+button:hover { background:#b91c1c; }
+#btnControlla { background:#dc2626; }
+#btnControlla:hover { background:#b91c1c; }
+pre { white-space:pre-wrap; background:#f8f8f8; padding:15px; border-radius:10px; border: 1px solid #dc2626; color: #000; }
+table { width:100%; border-collapse:collapse; }
+th, td { padding:8px; border-bottom:1px solid #dc2626; text-align:left; }
+textarea { background:#ffffff; color:#000000; min-height:200px; resize:vertical; }
+.id-cell { font-size:0.8em; color:#94a3b8; font-family:monospace; }
+hr { border-color:#dc2626; margin:15px 0; }
+.label { font-weight:bold; margin-top:10px; display:block; }
+.tariffa-input { width:100px; text-align:center; }
+.sum-box { background:#f8f8f8; padding:15px; border-radius:10px; text-align:center; flex:1; min-width:160px; border:1px solid #dc2626; }
+.sum-box strong { font-size:1.4em; display:block; margin:10px 0 5px; color: #dc2626; }
+h1, h3 { color: #dc2626; }
+</style>
+</head>
+<body>
+
+<div style="text-align: center; margin-bottom: 20px;">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/9/9c/Emblem_of_the_Italian_Red_Cross.svg" alt="Croce Rossa Italiana" style="width: 200px;">
+  <h2 style="color:#dc2626; margin:10px 0 0;">Croce Rossa Italiana</h2>
+</div>
+
+<h1 style="text-align:center;">🌟 Generatore Bonus Settimanali By @Damy_97 #Tony Stark</h1>
+
+<div id="summary" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
+</div>
+
+<div class="box">
+<h3>⚙️ Tariffe Orarie (modificabili per gruppo)</h3>
+<table id="tariffeTable">
+<tr><th>Gruppo</th><th>€/ora</th></tr>
+</table>
+<button onclick="saveTariffe()">💾 Salva Tariffe</button>
+</div>
+
+<div class="box">
+  <label class="label"><b>Bonus aggiuntivo globale (€)</b></label>
+  <input type="number" id="bonusExtra" value="0" oninput="calcola()">
+</div>
+
+<div class="box">
+  <label class="label"><b>Bonus Dipendente della Settimana (€)</b></label>
+  <input type="number" id="bonusDipendenteSettimana" value="10000" min="0" step="1000" oninput="saveBonusDipendente(); calcola()">
+  <small>Valore assegnato automaticamente al/agli vincitore/i della settimana</small>
+</div>
+
+<div class="box">
+<h3>📋 Organico (incolla tutto attaccato dal foglio)</h3>
+<textarea id="orgList" placeholder="Incolla qui l'organico completo..."></textarea>
+<div style="display:flex; gap:10px; flex-wrap:wrap;">
+  <button id="btnOrgSave">💾 Salva Organico</button>
+  <button id="btnOrgClear">🗑️ Svuota Organico</button>
+  <button id="btnImportOrg">📥 Importa in Tabella</button>
+</div>
+</div>
+
+<div class="box">
+<h3>👥 Personale (inserisci ore hh,mm)</h3>
+<table id="tabellaPersonale">
+<tr><th>Nome</th><th>Grado</th><th>ID Discord</th><th>Ore (hh,mm)</th><th>Bonus Extra 5k</th></tr>
+</table>
+</div>
+
+<div class="box">
+<button id="btnControlla" onclick="controllaDipendenteSettimana()">🔍 Controlla Dipendente della Settimana</button>
+</div>
+
+<div class="box">
+<h3>📋 Direzione</h3>
+
+<label class="label"><b>Ministro della Salute</b></label>
+<input id="ministroNome" placeholder="Nome">
+<input id="ministroID" placeholder="ID Discord">
+
+<hr>
+
+<label class="label"><b>Direzione Generale</b></label>
+<input class="dirGenNome" placeholder="Nome">
+<input class="dirGenID" placeholder="ID Discord">
+
+<label class="label"><b>Vice Direzione Generale</b></label>
+<input class="viceDirGenNome" placeholder="Nome">
+<input class="viceDirGenID" placeholder="ID Discord">
+
+<hr>
+
+<label class="label"><b>Direzione Amministrativa</b></label>
+<input class="dirAmmNome" placeholder="Nome">
+<input class="dirAmmID" placeholder="ID Discord">
+
+<label class="label"><b>Vice Direzione Amministrativa</b></label>
+<input class="viceDirAmmNome" placeholder="Nome">
+<input class="viceDirAmmID" placeholder="ID Discord">
+
+<hr>
+
+<label class="label"><b>Direzione Sanitaria</b></label>
+<input class="dirSanNome1" placeholder="Nome 1">
+<input class="dirSanID1" placeholder="ID Discord 1">
+<input class="dirSanNome2" placeholder="Nome 2">
+<input class="dirSanID2" placeholder="ID Discord 2">
+<input class="dirSanNome3" placeholder="Nome 3">
+<input class="dirSanID3" placeholder="ID Discord 3">
+<input class="dirSanNome4" placeholder="Nome 4">
+<input class="dirSanID4" placeholder="ID Discord 4">
+<input class="dirSanNome5" placeholder="Nome 5">
+<input class="dirSanID5" placeholder="ID Discord 5">
+
+<button onclick="saveDirezione()">💾 Salva Direzione</button>
+</div>
+
+<div class="box">
+<button onclick="generaMessaggio()">🔄 Genera Messaggio</button>
+<button onclick="copiaMessaggio()">📋 Copia Messaggio Discord</button>
+</div>
+
+<div class="box">
+<h3>👀 Anteprima Discord</h3>
+<pre id="preview"></pre>
+</div>
+
+<script>
+let bonusOrari = {
+  "Ministro della Salute": 900,
+  "Direttore Generale": 900,
+  "Vice Direttore Generale": 900,
+  "Direttore Amministrativo": 900,
+  "Vice Direttore Amministrativo": 900,
+  "Direttore Sanitario": 900,
+  "Responsabile Sanitario": 900,
+  "Responsabile Sanitario Tirocinante": 900,
+  "Responsabile Sanitario Tir.": 900,
+  "Primario": 700,
+  "Primario Tirocinante": 700,
+  "Primario tirocinante": 700,
+  "Medico": 600,
+  "Medico Tirocinante": 600,
+  "Infermiere": 550,
+  "Infermiere Tirocinante": 550,
+  "Autista Soccorritore": 500,
+  "Soccorritore": 500
+};
+
+const gruppiTariffe = {
+  "Direttori/responsabili": ["Direttore Generale", "Vice Direttore Generale", "Direttore Amministrativo", "Vice Direttore Amministrativo", "Direttore Sanitario", "Responsabile Sanitario", "Responsabile Sanitario Tir.", "Responsabile Sanitario Tirocinante"],
+  "Primari": ["Primario", "Primario Tirocinante", "Primario tirocinante"],
+  "Medici": ["Medico", "Medico Tirocinante"],
+  "Infermieri": ["Infermiere", "Infermiere Tirocinante"],
+  "Soccorritori": ["Autista Soccorritore", "Soccorritore"]
+};
+
+const ORG_KEY = "bonus_org_v64";
+const TAR_KEY = "bonus_tar_v64";
+const DIR_KEY = "bonus_dir_v64";
+const BONUS_DIP_KEY = "bonus_dipendente_settimana_v64";
+
+let messaggio = "";
+let vincitoriSettimana = [];
+
+function saveBonusDipendente() {
+  const valore = document.getElementById('bonusDipendenteSettimana').value;
+  localStorage.setItem(BONUS_DIP_KEY, valore);
+}
+
+function loadBonusDipendente() {
+  try {
+    const saved = localStorage.getItem(BONUS_DIP_KEY);
+    if (saved) {
+      document.getElementById('bonusDipendenteSettimana').value = saved;
+    }
+  } catch(e) {}
+}
+
+function getBonusDipendenteSettimana() {
+  return Number(document.getElementById('bonusDipendenteSettimana').value) || 10000;
+}
+
+function parseOre(str) {
+  if (!str) return 0;
+  str = str.trim().replace(',', '.');
+  return parseFloat(str) || 0;
+}
+
+function oreToMinuti(str) {
+  return parseOre(str) * 60;
+}
+
+function parseOrganico(text) {
+  if (!text.trim()) return [];
+
+  const contenuto = text.trim();
+  const persone = [];
+
+  const gradi = [
+    "Ministro della Salute","Direttore Generale","Vice Direttore Generale","Direttore Amministrativo",
+    "Vice Direttore Amm.","Direttore Sanitario","Responsabile Sanitario Tirocinante","Responsabile Sanitario",
+    "Primario tirocinante","Primario","Medico","Infermiere","Autista Soccorritore","Soccorritore"
+  ];
+
+  const idMatches = [...contenuto.matchAll(/\d{17,19}/g)];
+
+  for (const match of idMatches) {
+    const id = match[0];
+    const idPos = match.index;
+
+    let gradoTrovato = null;
+    let inizioGrado = -1;
+    for (const g of gradi) {
+      const pos = contenuto.lastIndexOf(g, idPos);
+      if (pos !== -1 && (inizioGrado === -1 || pos > inizioGrado)) {
+        inizioGrado = pos;
+        gradoTrovato = g;
+      }
+    }
+
+    if (!gradoTrovato) continue;
+
+    let testoDopoGrado = contenuto.substring(inizioGrado + gradoTrovato.length, idPos).trim();
+
+    let isTirocinante = false;
+    if (testoDopoGrado.toLowerCase().startsWith('tirocinante')) {
+      isTirocinante = true;
+      testoDopoGrado = testoDopoGrado.substring('tirocinante'.length).trim();
+    } else if (testoDopoGrado.startsWith('Tir.')) {
+      isTirocinante = true;
+      testoDopoGrado = testoDopoGrado.substring(4).trim();
+    }
+
+    const paroleMaiusc = testoDopoGrado.match(/[A-Z][a-zÀ-ÖÙ-öù-ÿ]*/g) || [];
+    if (paroleMaiusc.length < 2) continue;
+
+    let nome = paroleMaiusc.slice(0, 3).join(' ');
+
+    let gradoFinale = gradoTrovato.trim();
+    if (isTirocinante) {
+      gradoFinale += " Tirocinante";
+    }
+    if (gradoFinale === "Vice Direttore Amm.") gradoFinale = "Vice Direttore Amministrativo";
+
+    persone.push({ nome, grado: gradoFinale, id });
+  }
+
+  return persone;
+}
+
+function importaOrganico() {
+  const raw = document.getElementById('orgList').value;
+  const personale = parseOrganico(raw);
+
+  if (personale.length === 0) {
+    alert("Nessuna persona trovata. Controlla il formato.");
+    return;
+  }
+
+  const tabella = document.getElementById('tabellaPersonale');
+  while (tabella.rows.length > 1) tabella.deleteRow(1);
+
+  personale.forEach(p => {
+    let tr = document.createElement("tr");
+    tr.className = "riga";
+    tr.dataset.grado = p.grado;
+    tr.dataset.id = p.id;
+    tr.innerHTML = `
+      <td>${p.nome}</td>
+      <td>${p.grado}</td>
+      <td class="id-cell">${p.id}</td>
+      <td><input placeholder="hh,mm" oninput="calcola()"></td>
+      <td style="text-align:center;"><input type="checkbox" class="bonus5k" onchange="calcola()"></td>
+    `;
+    tabella.appendChild(tr);
+  });
+
+  alert(`Importate ${personale.length} persone!`);
+  calcola();
+}
+
+function loadTariffe() {
+  try {
+    const saved = localStorage.getItem(TAR_KEY);
+    if (saved) bonusOrari = JSON.parse(saved);
+  } catch(e) {}
+
+  const table = document.getElementById('tariffeTable');
+  while (table.rows.length > 1) table.deleteRow(1);
+
+  Object.keys(gruppiTariffe).forEach(gruppo => {
+    const valore = bonusOrari[gruppiTariffe[gruppo][0]] || 0;
+    let tr = document.createElement("tr");
+    tr.innerHTML = `<td>${gruppo}</td><td><input type="number" class="tariffa-input" value="${valore}" data-gruppo="${gruppo}"></td>`;
+    table.appendChild(tr);
+  });
+
+  table.addEventListener('input', (e) => {
+    if (e.target.classList.contains('tariffa-input')) {
+      const valore = Number(e.target.value) || 0;
+      const gruppo = e.target.dataset.gruppo;
+      gruppiTariffe[gruppo].forEach(grado => bonusOrari[grado] = valore);
+      calcola();
+    }
+  });
+}
+
+function saveTariffe() {
+  localStorage.setItem(TAR_KEY, JSON.stringify(bonusOrari));
+  alert("Tariffe salvate!");
+}
+
+function getDirezioneTesto() {
+  let testo = "### 📋 **Direzione** 📋\n";
+
+  const minNome = document.getElementById('ministroNome').value.trim();
+  const minID = document.getElementById('ministroID').value.trim();
+  if (minNome || minID) {
+    testo += "**Ministro della Salute:**\n";
+    if (minID && /^\d{17,19}$/.test(minID)) {
+      testo += `- <@${minID}> — ${minNome || 'Nome non inserito'}\n`;
+    } else if (minNome) {
+      testo += `- ${minNome}\n`;
+    }
+  }
+
+  const dgNome = document.querySelector('.dirGenNome').value.trim();
+  const dgID = document.querySelector('.dirGenID').value.trim();
+  const vdgNome = document.querySelector('.viceDirGenNome').value.trim();
+  const vdgID = document.querySelector('.viceDirGenID').value.trim();
+
+  if (dgNome || dgID || vdgNome || vdgID) {
+    testo += "**Direzione Generale:**\n";
+    if (dgID && /^\d{17,19}$/.test(dgID)) {
+      testo += `- <@${dgID}> — ${dgNome || 'Nome non inserito'}\n`;
+    } else if (dgNome) {
+      testo += `- ${dgNome}\n`;
+    }
+    if (vdgID && /^\d{17,19}$/.test(vdgID)) {
+      testo += `- <@${vdgID}> — ${vdgNome || 'Nome non inserito'}\n`;
+    } else if (vdgNome) {
+      testo += `- ${vdgNome}\n`;
+    }
+  }
+
+  const daNome = document.querySelector('.dirAmmNome').value.trim();
+  const daID = document.querySelector('.dirAmmID').value.trim();
+  const vdaNome = document.querySelector('.viceDirAmmNome').value.trim();
+  const vdaID = document.querySelector('.viceDirAmmID').value.trim();
+
+  if (daNome || daID || vdaNome || vdaID) {
+    testo += "**Direzione Amministrativa:**\n";
+    if (daID && /^\d{17,19}$/.test(daID)) {
+      testo += `- <@${daID}> — ${daNome || 'Nome non inserito'}\n`;
+    } else if (daNome) {
+      testo += `- ${daNome}\n`;
+    }
+    if (vdaID && /^\d{17,19}$/.test(vdaID)) {
+      testo += `- <@${vdaID}> — ${vdaNome || 'Nome non inserito'}\n`;
+    } else if (vdaNome) {
+      testo += `- ${vdaNome}\n`;
+    }
+  }
+
+  testo += "**Direzione Sanitaria:**\n";
+  let haAlmenoUno = false;
+  for (let i = 1; i <= 5; i++) {
+    const nome = document.querySelector(`.dirSanNome${i}`)?.value.trim() || '';
+    const id = document.querySelector(`.dirSanID${i}`)?.value.trim() || '';
+    if (nome || id) {
+      haAlmenoUno = true;
+      if (id && /^\d{17,19}$/.test(id)) {
+        testo += `- <@${id}> — ${nome || 'Nome non inserito'}\n`;
+      } else if (nome) {
+        testo += `- ${nome}\n`;
+      }
+    }
+  }
+  if (!haAlmenoUno) {
+    testo = testo.replace("\n**Direzione Sanitaria:**\n", "");
+  }
+
+  return testo;
+}
+
+function saveDirezione() {
+  const dati = {
+    ministroNome: document.getElementById('ministroNome').value,
+    ministroID: document.getElementById('ministroID').value,
+    dirGenNome: document.querySelector('.dirGenNome').value,
+    dirGenID: document.querySelector('.dirGenID').value,
+    viceDirGenNome: document.querySelector('.viceDirGenNome').value,
+    viceDirGenID: document.querySelector('.viceDirGenID').value,
+    dirAmmNome: document.querySelector('.dirAmmNome').value,
+    dirAmmID: document.querySelector('.dirAmmID').value,
+    viceDirAmmNome: document.querySelector('.viceDirAmmNome').value,
+    viceDirAmmID: document.querySelector('.viceDirAmmID').value,
+    dirSan: []
+  };
+  for (let i = 1; i <= 5; i++) {
+    dati.dirSan.push({
+      nome: document.querySelector(`.dirSanNome${i}`)?.value || '',
+      id: document.querySelector(`.dirSanID${i}`)?.value || ''
+    });
+  }
+  localStorage.setItem(DIR_KEY, JSON.stringify(dati));
+  alert("Direzione salvata!");
+}
+
+function loadDirezione() {
+  try {
+    const saved = localStorage.getItem(DIR_KEY);
+    if (saved) {
+      const dati = JSON.parse(saved);
+      document.getElementById('ministroNome').value = dati.ministroNome || '';
+      document.getElementById('ministroID').value = dati.ministroID || '';
+      document.querySelector('.dirGenNome').value = dati.dirGenNome || '';
+      document.querySelector('.dirGenID').value = dati.dirGenID || '';
+      document.querySelector('.viceDirGenNome').value = dati.viceDirGenNome || '';
+      document.querySelector('.viceDirGenID').value = dati.viceDirGenID || '';
+      document.querySelector('.dirAmmNome').value = dati.dirAmmNome || '';
+      document.querySelector('.dirAmmID').value = dati.dirAmmID || '';
+      document.querySelector('.viceDirAmmNome').value = dati.viceDirAmmNome || '';
+      document.querySelector('.viceDirAmmID').value = dati.viceDirAmmID || '';
+      dati.dirSan.forEach((s, i) => {
+        if (document.querySelector(`.dirSanNome${i+1}`)) document.querySelector(`.dirSanNome${i+1}`).value = s.nome;
+        if (document.querySelector(`.dirSanID${i+1}`)) document.querySelector(`.dirSanID${i+1}`).value = s.id;
+      });
+    }
+  } catch(e) {}
+}
+
+function controllaDipendenteSettimana() {
+  let persone = [];
+
+  document.querySelectorAll('.riga').forEach(r => {
+    let inputOre = r.querySelector('input[placeholder="hh,mm"]').value.trim();
+    let minuti = oreToMinuti(inputOre);
+    if (minuti > 0) {
+      persone.push({ nome: r.cells[0].innerText.trim(), minuti });
+    }
+  });
+
+  if (persone.length === 0) {
+    alert("Nessun dipendente con ore inserite.");
+    return;
+  }
+
+  let maxMinuti = Math.max(...persone.map(p => p.minuti));
+  let candidati = persone.filter(p => p.minuti === maxMinuti);
+  vincitoriSettimana = [];
+
+  const bonusValore = getBonusDipendenteSettimana();
+
+  if (candidati.length === 1) {
+    vincitoriSettimana = [candidati[0].nome];
+    alert(`Unico dipendente con ore massime (${maxMinuti / 60} ore):\n${candidati[0].nome}\n€${bonusValore.toLocaleString('it-IT')} extra aggiunti automaticamente.`);
+  } else {
+    let lista = candidati.map((c, i) => `${i+1}) ${c.nome}`).join('\n');
+    let scelta = prompt(`Pareggio! ${candidati.length} dipendenti con ${maxMinuti / 60} ore:\n\n${lista}\n\nScrivi il numero per scegliere uno solo, o "tutti" per dare €${bonusValore.toLocaleString('it-IT')} extra a tutti`);
+
+    if (scelta && scelta.toLowerCase().trim() === 'tutti') {
+      vincitoriSettimana = candidati.map(c => c.nome);
+      alert(`€${bonusValore.toLocaleString('it-IT')} extra aggiunti a tutti i ${candidati.length} candidati!`);
+    } else {
+      let idx = parseInt(scelta) - 1;
+      if (!isNaN(idx) && candidati[idx]) {
+        vincitoriSettimana = [candidati[idx].nome];
+        alert(`€${bonusValore.toLocaleString('it-IT')} extra aggiunti a: ${candidati[idx].nome}`);
+      } else {
+        alert("Scelta non valida. Nessun bonus extra aggiunto.");
+      }
+    }
+  }
+
+  generaMessaggio();
+}
+
+function generaMessaggio() {
+  let extraGlobale = Number(document.getElementById('bonusExtra').value) || 0;
+  let persone = [];
+  let oreComplessive = 0;
+  let bonusErogato = 0;
+  let extraSpecialiTot = 0; // Solo dipendente settimana + 5k manuali
+
+  const bonusDipValore = getBonusDipendenteSettimana();
+
+  document.querySelectorAll('.riga').forEach(r => {
+    let nome = r.cells[0].innerText.trim();
+    let grado = r.dataset.grado;
+    let tasso = bonusOrari[grado] || 0;
+
+    let inputOre = r.querySelector('input[placeholder="hh,mm"]').value.trim();
+    let ore = parseOre(inputOre);
+    let base = Math.round(ore * tasso);
+
+    let extrasSpeciali = 0;
+
+    // Bonus dipendente della settimana
+    if (vincitoriSettimana.includes(nome)) {
+      extrasSpeciali += bonusDipValore;
+    }
+
+    // Bonus extra 5k manuale
+    let checkbox = r.querySelector('.bonus5k');
+    if (checkbox && checkbox.checked) {
+      extrasSpeciali += 5000;
+    }
+
+    let bonusTot = base + extraGlobale + extrasSpeciali;
+
+    if (ore > 0 || extrasSpeciali > 0) {
+      if (ore > 0) oreComplessive += ore;
+      bonusErogato += bonusTot;
+      extraSpecialiTot += extrasSpeciali;
+      persone.push({ nome, bonus: bonusTot });
+    }
+  });
+
+  let totaleDipendenti = document.querySelectorAll('.riga').length;
+  let dipConBonus = persone.length;
+  let oreComplessiveStr = oreComplessive.toFixed(2).replace('.', ',');
+  let bonusErogatoStr = bonusErogato.toLocaleString('it-IT');
+  let extraSpecialiTotStr = extraSpecialiTot.toLocaleString('it-IT');
+
+  aggiornaRiepilogo(totaleDipendenti, dipConBonus, oreComplessiveStr, bonusErogatoStr, extraSpecialiTotStr);
+
+  if (persone.length === 0) {
+    document.getElementById('preview').innerText = 'Nessun dipendente con bonus da mostrare.';
+    messaggio = '';
+    return;
+  }
+
+  persone.sort((a, b) => b.bonus - a.bonus);
+
+  let vincitori = persone.filter(p => vincitoriSettimana.includes(p.nome));
+  let classifica = persone.filter(p => !vincitoriSettimana.includes(p.nome));
+
+  let t = Math.floor(Date.now() / 1000);
+
+  messaggio = `# 🌟 **BONUS SETTIMANALI** 🌟
+**Data: <t:${t}:F>** 💰
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# 🥇 **Dipendente della Settimana** 🏆
+`;
+
+  if (vincitori.length === 0) {
+    messaggio += '> Nessun vincitore selezionato';
+  } else {
+    vincitori.forEach(v => {
+      messaggio += `> **${v.nome}** — € ${v.bonus.toLocaleString('it-IT')}\n`;
+    });
+  }
+
+  messaggio += `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# 📊 **Classifica Settimanale** 📊
+`;
+
+  classifica.forEach(p => {
+    messaggio += `- **${p.nome}** — € ${p.bonus.toLocaleString('it-IT')}\n`;
+  });
+
+  messaggio += `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+### 👏 **Congratulazioni a Tutti!** 👏
+*La Direzione e il Ministro della Salute ringraziano per l'impegno, la dedizione e la professionalità dimostrata.*
+<@&963862177918365696>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+### ⚠️ **Avviso Importante** ⚠️
+*Con la pubblicazione di questi bonus, i precedenti non sono più ritirabili.*
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${getDirezioneTesto()}
+`;
+
+  document.getElementById('preview').innerText = messaggio;
+}
+
+function aggiornaRiepilogo(totaleDip, dipConBonus, oreComplessive, bonusErogato, extraSpecialiTot) {
+  document.getElementById('summary').innerHTML = `
+    <div class="sum-box">
+      👥<br><strong>${totaleDip}</strong><br>Totale Dipendenti
+    </div>
+    <div class="sum-box">
+      ✅<br><strong>${dipConBonus}</strong><br>Dipendenti con Bonus
+    </div>
+    <div class="sum-box">
+      ⏰<br><strong>${oreComplessive}</strong><br>Ore Complessive
+    </div>
+    <div class="sum-box">
+      💶<br><strong>${bonusErogato} €</strong><br>Bonus Totale Erogato
+    </div>
+    <div class="sum-box">
+      🎁<br><strong>${extraSpecialiTot} €</strong><br>Bonus Extra Totali
+    </div>
+  `;
+}
+
+function copiaMessaggio() {
+  if (!messaggio) return alert('Genera prima il messaggio');
+  navigator.clipboard.writeText(messaggio).then(() => alert('Messaggio copiato!'));
+}
+
+function calcola() {
+  generaMessaggio();
+}
+
+function saveOrg() {
+  localStorage.setItem(ORG_KEY, document.getElementById('orgList').value);
+}
+
+loadTariffe();
+loadDirezione();
+loadBonusDipendente();
+
+try {
+  const savedOrg = localStorage.getItem(ORG_KEY);
+  if (savedOrg) document.getElementById('orgList').value = savedOrg;
+} catch(e) {}
+
+document.getElementById('btnOrgSave').onclick = () => { saveOrg(); alert('Organico salvato!'); };
+document.getElementById('btnOrgClear').onclick = () => { document.getElementById('orgList').value = ""; saveOrg(); alert('Organico svuotato!'); };
+document.getElementById('btnImportOrg').onclick = importaOrganico;
+
+setTimeout(calcola, 500);
+</script>
+
+</body>
+</html>
